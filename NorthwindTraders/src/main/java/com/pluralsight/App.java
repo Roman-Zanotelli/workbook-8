@@ -8,14 +8,18 @@ import java.util.Scanner;
 
 public class App {
     static Connection sqlConnection;
+    static Scanner scanner = new Scanner(System.in);
     public static void main(String[] args) {
+
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             try {
                 System.out.println("\nCiao!");
+                scanner.close();
                 sqlConnection.close();
             } catch (SQLException ignore) {
             }
         }));
+
         try {
             Class.forName("com.mysql.cj.jdbc.Driver");
             sqlConnection = DriverManager.getConnection(
@@ -29,7 +33,7 @@ public class App {
             System.out.println("JDBC Failed!");
             System.exit(1);
         }
-        Scanner scanner = new Scanner(System.in);
+
         while(true){
             System.out.print("""
                     
@@ -38,11 +42,13 @@ public class App {
                     What do you want to do?
                         1) Display all products
                         2) Display all customers
+                        3) Display all categories
                         0) Exit
                     Select an option:\s""");
             switch(scanner.nextLine()){
                 case "1" -> products();
                 case "2" -> customers();
+                case "3" -> categories();
                 case "0" -> System.exit(0);
                 default -> System.out.println("Invalid Selection!!!");
             }
@@ -72,6 +78,7 @@ public class App {
         }
         System.out.println("\nDONE!");
     }
+
     private static void customers(){
         System.out.println("\nQuerying All Customers");
         try {
@@ -90,6 +97,64 @@ public class App {
                         Phone: %s
                         ------------------------------
                         """, contactName, companyName, city, country, phoneNumber);
+            }
+        } catch (SQLException e) {
+            System.out.println("Database Error Occurred!");
+            System.exit(1);
+        }
+        System.out.println("\nDONE!");
+    }
+
+    private static void categories(){
+        System.out.println("\nQuerying All Categories");
+        try {
+            ResultSet results = sqlConnection.prepareStatement("SELECT * FROM Categories ORDER BY CategoryID").executeQuery();
+            while (results.next()) {
+                int id = results.getInt("CategoryID");
+                String name = results.getString("CategoryName");
+                System.out.printf("""
+                        ID: %d
+                        Name: %s
+                        ------------------------------
+                        """, id, name);
+            }
+        } catch (SQLException e) {
+            System.out.println("Database Error Occurred!");
+            System.exit(1);
+        }
+        productsByCategory();
+    }
+
+    private static void productsByCategory(){
+        System.out.println("\nQuerying All Products By Category");
+        int selectedID;
+        while (true){
+            System.out.print("Select Category ID: ");
+            try{
+                selectedID = scanner.nextInt();
+                scanner.nextLine();
+                break;
+            }catch (Exception ignore){
+                scanner.nextLine();
+            }
+        }
+        System.out.print("\n".repeat(3));
+
+        try {
+            ResultSet results = sqlConnection.prepareStatement("SELECT * FROM Products WHERE CategoryID = " + selectedID).executeQuery();
+            while (results.next()) {
+                String name = results.getString("ProductName");
+                int id = results.getInt("ProductId");
+                float price = results.getFloat("UnitPrice");
+                int stock = results.getInt("UnitsInStock");
+
+                System.out.printf("""
+                        Id: %d
+                        Name: %s
+                        Price: %.2f
+                        Stock: %d
+                        ------------------------------
+                        """, id, name, price, stock);
             }
         } catch (SQLException e) {
             System.out.println("Database Error Occurred!");
