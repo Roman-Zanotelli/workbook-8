@@ -24,7 +24,16 @@ public class App {
             ResultSet results = sqlConnection.prepareStatement("SELECT * FROM Products").executeQuery();
             while (results.next()) {
                 String name = results.getString("ProductName");
-                System.out.println(name);
+                int id = results.getInt("ProductId");
+                float price = results.getFloat("UnitPrice");
+                int stock = results.getInt("UnitsInStock");
+                System.out.printf("""
+                        Id: %d
+                        Name: %s
+                        Price: %.2f
+                        Stock: %d
+                        ---------------
+                        """, id, name, price, stock);
             }
             sqlConnection.close();
         } catch (SQLException e) {
