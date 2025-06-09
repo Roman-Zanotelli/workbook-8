@@ -1,5 +1,8 @@
 package com.pluralsight;
 
+import org.apache.commons.dbcp2.BasicDataSource;
+
+import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -10,6 +13,22 @@ public class App {
     static Connection sqlConnection;
     static Scanner scanner = new Scanner(System.in);
     public static void main(String[] args) {
+        try(BasicDataSource source = new BasicDataSource()){
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            source.setUrl("jdbc:mysql://localhost:3306/northwind");
+            source.setUsername("root");
+            source.setPassword("mysql");
+            sqlConnection = source.getConnection();
+        }catch (SQLException e) {
+            System.out.println("Connection to MySQL Could Not Be Established!");
+            System.exit(1);
+        } catch (ClassNotFoundException e) {
+            System.out.println("JDBC Failed!");
+            System.exit(1);
+        } catch (Exception ignored){
+
+        }
+
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             try {
@@ -20,19 +39,6 @@ public class App {
             }
         }));
 
-        try {
-            Class.forName("com.mysql.cj.jdbc.Driver");
-            sqlConnection = DriverManager.getConnection(
-                    "jdbc:mysql://localhost:3306/northwind",
-                    "root",
-                    "mysql");
-        } catch (SQLException e) {
-            System.out.println("Connection to MySQL Could Not Be Established!");
-            System.exit(1);
-        } catch (ClassNotFoundException e) {
-            System.out.println("JDBC Failed!");
-            System.exit(1);
-        }
 
         while(true){
             System.out.print("""
