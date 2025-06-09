@@ -3,10 +3,7 @@ package com.pluralsight;
 import org.apache.commons.dbcp2.BasicDataSource;
 
 import javax.sql.DataSource;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.Scanner;
 
 public class App {
@@ -146,8 +143,14 @@ public class App {
             }
         }
         System.out.print("\n".repeat(3));
-
-        try (ResultSet results = sqlConnection.prepareStatement("SELECT * FROM Products WHERE CategoryID = " + selectedID).executeQuery();){
+        PreparedStatement query;
+        try {
+            query = sqlConnection.prepareStatement("SELECT * FROM Products WHERE CategoryID = ?");
+            query.setInt(1, selectedID);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+        try (ResultSet results = query.executeQuery()){
 
             while (results.next()) {
                 String name = results.getString("ProductName");
