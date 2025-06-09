@@ -62,8 +62,8 @@ public class App {
     }
     private static void products(){
         System.out.println("\nQuerying All Products");
-        try {
-            ResultSet results = sqlConnection.prepareStatement("SELECT * FROM Products").executeQuery();
+        try (ResultSet results = sqlConnection.prepareStatement("SELECT * FROM Products").executeQuery()){
+
             while (results.next()) {
                 String name = results.getString("ProductName");
                 int id = results.getInt("ProductId");
@@ -87,8 +87,8 @@ public class App {
 
     private static void customers(){
         System.out.println("\nQuerying All Customers");
-        try {
-            ResultSet results = sqlConnection.prepareStatement("SELECT * FROM Customers ORDER BY Country").executeQuery();
+        try(ResultSet results = sqlConnection.prepareStatement("SELECT * FROM Customers ORDER BY Country").executeQuery()) {
+
             while (results.next()) {
                 String contactName = results.getString("ContactName");
                 String companyName = results.getString("CompanyName");
@@ -113,8 +113,8 @@ public class App {
 
     private static void categories(){
         System.out.println("\nQuerying All Categories");
-        try {
-            ResultSet results = sqlConnection.prepareStatement("SELECT * FROM Categories ORDER BY CategoryID").executeQuery();
+        try(ResultSet results = sqlConnection.prepareStatement("SELECT * FROM Categories ORDER BY CategoryID").executeQuery()) {
+
             while (results.next()) {
                 int id = results.getInt("CategoryID");
                 String name = results.getString("CategoryName");
@@ -124,6 +124,7 @@ public class App {
                         ------------------------------
                         """, id, name);
             }
+
         } catch (SQLException e) {
             System.out.println("Database Error Occurred!");
             System.exit(1);
@@ -146,8 +147,8 @@ public class App {
         }
         System.out.print("\n".repeat(3));
 
-        try {
-            ResultSet results = sqlConnection.prepareStatement("SELECT * FROM Products WHERE CategoryID = " + selectedID).executeQuery();
+        try (ResultSet results = sqlConnection.prepareStatement("SELECT * FROM Products WHERE CategoryID = " + selectedID).executeQuery();){
+
             while (results.next()) {
                 String name = results.getString("ProductName");
                 int id = results.getInt("ProductId");
